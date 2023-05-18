@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int           @id @default(autoincrement())
+  name            String
+  email           String        @unique
+  password        String
+  is_staff_member Boolean       @default(false)
+  Application     Application[]
+}
+
+model Application {
+  id        Int               @id @default(autoincrement())
+  userId    Int
+  applicant User              @relation(fields: [userId], references: [id])
+  status    ApplicationStatus @default(ACTIVE)
+  message   String
+  comment   String
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+enum ApplicationStatus {
+  ACTIVE
+  RESOLVED
+}
