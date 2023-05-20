@@ -7,4 +7,4 @@ cp example.env .env
 docker-compose up
 ```
 
-Docs: http://localhost:<your port>/docs
+Swagger docs: http://localhost:4000/docs
