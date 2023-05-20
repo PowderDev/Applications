@@ -5,5 +5,7 @@ declare namespace NodeJS {
     DATABASE_URL: string;
     REDIS_HOST: string;
     REDIS_PORT: string;
+    CORS_ORIGIN: string;
+    PORT: string;
   }
 }

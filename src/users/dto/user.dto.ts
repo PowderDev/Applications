@@ -1,4 +1,6 @@
+import { UserRole } from '@prisma/client';
 import { plainToInstance, Expose } from 'class-transformer';
+import { IsOptional } from 'class-validator';
 
 export class UserDto {
   static create(data: Omit<UserDto, 'id'>) {
@@ -13,4 +15,8 @@ export class UserDto {
 
   @Expose()
   password: string;
+
+  @IsOptional()
+  @Expose()
+  role?: UserRole;
 }

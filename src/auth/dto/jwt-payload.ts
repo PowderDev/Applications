@@ -1,9 +1,10 @@
+import { UserRole } from '@prisma/client';
 import { plainToInstance, instanceToPlain, Expose } from 'class-transformer';
 
 export type JwtPayload = {
   id: number;
   email: string;
-  is_staff_member: boolean;
+  role: UserRole;
 };
 
 export class JwtPayloadDto {
@@ -22,5 +23,5 @@ export class JwtPayloadDto {
   email: string;
 
   @Expose()
-  is_staff_member: boolean;
+  role: UserRole;
 }

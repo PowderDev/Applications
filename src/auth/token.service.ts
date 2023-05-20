@@ -16,6 +16,7 @@ export class TokenService {
     const accessToken = this.jwt.sign(payload.toPlain());
     const refreshToken = this.jwt.sign(payload.toPlain(), {
       expiresIn: jwtConstants.refreshExpiresIn,
+      secret: process.env.JWT_REFRESH_SECRET,
     });
 
     return {
@@ -32,8 +33,8 @@ export class TokenService {
     await this.tokenRepository.deleteToken(userId);
   }
 
-  validateToken(token: string): JwtPayload {
-    return this.jwt.verify(token);
+  validateToken(token: string, secret: string): JwtPayload {
+    return this.jwt.verify(token, { secret });
   }
 
   async findToken(userId: number): Promise<TokenDto> {

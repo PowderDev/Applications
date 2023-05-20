@@ -8,26 +8,35 @@ datasource db {
 }
 
 model User {
-  id              Int           @id @default(autoincrement())
-  name            String
-  email           String        @unique
-  password        String
-  is_staff_member Boolean       @default(false)
-  Application     Application[]
+  id                   Int           @id @default(autoincrement())
+  name                 String
+  email                String        @unique
+  password             String
+  role                 UserRole      @default(USER)
+  applications         Application[] @relation("applications") // Applications that you submited as any authenticated user
+  resolvedApplications Application[] @relation("resolvedApplications") // Applications that you resolved as a staff member
 }
 
 model Application {
-  id        Int               @id @default(autoincrement())
-  userId    Int
-  applicant User              @relation(fields: [userId], references: [id])
-  status    ApplicationStatus @default(ACTIVE)
-  message   String
-  comment   String
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  id            Int               @id @default(autoincrement())
+  applicantId   Int
+  applicant     User              @relation(fields: [applicantId], references: [id], name: "applications")
+  staffMemberId Int?
+  staffMember   User?             @relation(fields: [staffMemberId], references: [id], name: "resolvedApplications")
+  status        ApplicationStatus @default(ACTIVE)
+  message       String
+  comment       String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  deleted       Boolean           @default(false)
 }
 
 enum ApplicationStatus {
   ACTIVE
   RESOLVED
+}
+
+enum UserRole {
+  STAFF
+  USER
 }

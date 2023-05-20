@@ -3,19 +3,22 @@ import * as bcrypt from 'bcrypt';
 import { UserDto } from 'src/users/dto/user.dto';
 import { TokenService } from './token.service';
 import { JwtPayload, JwtPayloadDto } from './dto/jwt-payload';
-import { AuthDto } from './dto/auth.dto';
 import { TokenDto } from './dto/token.dto';
 import { UsersRepository } from 'src/users/users.repository';
+import { MailService } from 'src/mail/mail.service';
+import { AuthRegistration } from './contracts/auth.registration';
+import { AuthLogin } from './contracts/auth.login';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersRepository: UsersRepository,
     private tokenService: TokenService,
+    private mailService: MailService,
   ) {}
 
-  async registration(dto: AuthDto) {
-    const { email, name, password } = dto;
+  async registration(dto: AuthRegistration.Request) {
+    const { email, password } = dto;
     const candidate = await this.usersRepository.findByEmail(email);
 
     if (candidate) {
@@ -27,16 +30,17 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 3);
     const userToCreate = UserDto.create({
-      email,
-      name,
+      ...dto,
       password: hashedPassword,
     });
     const newUser = await this.usersRepository.createUser(userToCreate);
 
+    this.mailService.onAuthMail(newUser.name);
+
     return this.getNewTokens(JwtPayloadDto.create(newUser));
   }
 
-  async login(dto: AuthDto) {
+  async login(dto: AuthLogin.Request) {
     const { email, password } = dto;
     const candidate = await this.usersRepository.findByEmail(email);
 
@@ -71,7 +75,10 @@ export class AuthService {
     let userData: JwtPayload;
 
     try {
-      userData = this.tokenService.validateToken(refreshToken);
+      userData = this.tokenService.validateToken(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET,
+      );
     } catch {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
